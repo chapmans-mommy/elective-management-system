@@ -1,6 +1,17 @@
-import json
 import os
-from datetime import date
+
+from courses import (
+    find_course,
+    search_courses,
+    filter_available,
+    sort_by_name,
+    sort_by_seats,
+    print_courses,
+)
+from enrollments import add_enrollment, cancel_enrollment
+from storage import load_data, save_data
+from utils import input_int
+
 
 DATA_DIR = "data"
 COURSES_FILE = os.path.join(DATA_DIR, "courses.json")
@@ -8,133 +19,89 @@ STUDENTS_FILE = os.path.join(DATA_DIR, "students.json")
 ENROLLMENTS_FILE = os.path.join(DATA_DIR, "enrollments.json")
 
 
-#файлы
-def load(filename):
-    if not os.path.exists(filename):
-        return []
-    with open(filename, "r", encoding="utf-8") as f:
-        return json.load(f)
+def show_stats(courses: list[dict],
+               students: list[dict],
+               enrollments: list[dict]) -> None:
 
-
-def save(filename, data):
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=4)
-
-
-#поиск и фильтрация
-def find_course(courses, course_id):
-    for c in courses:
-        if c["id"] == course_id:
-            return c
-    return None
-
-
-def search_courses(courses, keyword):
-    kw = keyword.lower()
-    return [c for c in courses if kw in c["name"].lower() or kw in c["description"].lower()]
-
-
-def filter_available(courses):
-    return [c for c in courses if c["current_students"] < c["max_students"]]
-
-
-#сортировка
-def sort_by_name(courses):
-    return sorted(courses, key=lambda c: c["name"])
-
-
-def sort_by_seats(courses):
-    return sorted(courses, key=lambda c: c["max_students"] - c["current_students"], reverse=True)
-
-
-#бронирование
-def add_enrollment(enrollments, courses, student_id, course_id):
-    for e in enrollments:
-        if e["student_id"] == student_id and e["course_id"] == course_id and e["status"] == "active":
-            return "Студент уже записан на этот курс."
-
-    course = find_course(courses, course_id)
-    if not course:
-        return "Курс не найден."
-    if course["current_students"] >= course["max_students"]:
-        return "На курсе нет свободных мест."
-
-    new_id = max([e["id"] for e in enrollments], default=0) + 1
-    enrollments.append({
-        "id": new_id,
-        "student_id": student_id,
-        "course_id": course_id,
-        "enrollment_date": str(date.today()),
-        "status": "active"
-    })
-    course["current_students"] += 1
-    return "Запись успешно добавлена."
-
-
-def cancel_enrollment(enrollments, courses, student_id, course_id):
-    for e in enrollments:
-        if e["student_id"] == student_id and e["course_id"] == course_id and e["status"] == "active":
-            e["status"] = "cancelled"
-            course = find_course(courses, course_id)
-            if course:
-                course["current_students"] -= 1
-            return "Запись отменена."
-    return "Активная запись не найдена."
-
-
-#статистика
-def get_stats(courses, students, enrollments):
     active = [e for e in enrollments if e["status"] == "active"]
     counts = {}
-    for e in active:
-        counts[e["course_id"]] = counts.get(e["course_id"], 0) + 1
+    for enrollment in active:
+        cid = enrollment["course_id"]
+        counts[cid] = counts.get(cid, 0) + 1
+
     top = sorted(counts.items(), key=lambda x: x[1], reverse=True)[:3]
 
     print("СТАТИСТИКА")
-    print(f"Курсов: {len(courses)} | Студентов: {len(students)} | Активных записей: {len(active)}")
-    print("Топ курсов:")
-    for cid, cnt in top:
-        c = find_course(courses, cid)
-        if c:
-            print(f"  {c['name']} — {cnt}")
+    print(f"Курсов: {len(courses)} | "
+          f"Студентов: {len(students)} | "
+          f"Активных записей: {len(active)}")
+    print("Топ-3 популярных курса:")
+    for cid, count in top:
+        course = find_course(courses, cid)
+        if course:
+            print(f"  {course['name']} — {count} записей")
 
 
-#вывод
-def print_courses(courses, title):
-    print(f"{title}")
-    for c in courses:
-        free = c["max_students"] - c["current_students"]
-        status = "доступен" if free > 0 else "мест нет"
-        print(f"  [{c['id']}] {c['name']} | {c['teacher']} | мест: {free} | {status}")
+def show_menu() -> None:
+    print(" СИСТЕМА УПРАВЛЕНИЯ ФАКУЛЬТАТИВАМИ")
+    print(" " * 55)
+    print("1. Показать все курсы")
+    print("2. Показать доступные курсы")
+    print("3. Найти курс")
+    print("4. Сортировать курсы по названию")
+    print("5. Сортировать курсы по местам")
+    print("6. Записаться на курс")
+    print("7. Отменить запись")
+    print("8. Показать статистику")
+    print("0. Выход")
 
 
+def main() -> None:
+    courses = load_data(COURSES_FILE)
+    students = load_data(STUDENTS_FILE)
+    enrollments = load_data(ENROLLMENTS_FILE)
 
-def main():
-    courses = load(COURSES_FILE)
-    students = load(STUDENTS_FILE)
-    enrollments = load(ENROLLMENTS_FILE)
+    while True:
+        show_menu()
+        choice = input("Выберите действие: ").strip()
 
-    print("СИСТЕМА УПРАВЛЕНИЯ ФАКУЛЬТАТИВАМИ")
-
-    print_courses(courses, "Все курсы")
-    print_courses(filter_available(courses), "Доступные курсы")
-    print_courses(search_courses(courses, "Django"), "Поиск: Django")
-
-    print("Сортировка по свободным местам")
-    for c in sort_by_seats(courses):
-        print(f"  {c['name']} — свободно: {c['max_students'] - c['current_students']}")
-
-    print("Добавление брони")
-    print(" ", add_enrollment(enrollments, courses, 1, 3))
-    save(ENROLLMENTS_FILE, enrollments)
-    save(COURSES_FILE, courses)
-
-    print("Отмена брони")
-    print(" ", cancel_enrollment(enrollments, courses, 1, 3))
-    save(ENROLLMENTS_FILE, enrollments)
-    save(COURSES_FILE, courses)
-
-    get_stats(courses, students, enrollments)
+        if choice == "1":
+            print_courses(courses, "Все курсы")
+        elif choice == "2":
+            print_courses(filter_available(courses), "Доступные курсы")
+        elif choice == "3":
+            keyword = input("Ключевое слово: ")
+            results = search_courses(courses, keyword)
+            print_courses(results, "Результаты поиска")
+        elif choice == "4":
+            print_courses(sort_by_name(courses), "Сортировка по названию")
+        elif choice == "5":
+            print_courses(sort_by_seats(courses), "Сортировка по местам")
+        elif choice == "6":
+            student_id = input_int("ID студента: ")
+            course_id = input_int("ID курса: ")
+            result = add_enrollment(
+                enrollments, courses, student_id, course_id
+            )
+            print(result)
+            save_data(ENROLLMENTS_FILE, enrollments)
+            save_data(COURSES_FILE, courses)
+        elif choice == "7":
+            student_id = input_int("ID студента: ")
+            course_id = input_int("ID курса: ")
+            result = cancel_enrollment(
+                enrollments, courses, student_id, course_id
+            )
+            print(result)
+            save_data(ENROLLMENTS_FILE, enrollments)
+            save_data(COURSES_FILE, courses)
+        elif choice == "8":
+            show_stats(courses, students, enrollments)
+        elif choice == "0":
+            print("До свидания")
+            break
+        else:
+            print("Некорректный выбор. Попробуйте снова.")
 
 
 if __name__ == "__main__":

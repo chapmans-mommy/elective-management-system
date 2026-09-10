@@ -26,5 +26,12 @@
         "course_id": 3,
         "enrollment_date": "2026-09-10",
         "status": "cancelled"
+    },
+    {
+        "id": 5,
+        "student_id": 1,
+        "course_id": 3,
+        "enrollment_date": "2026-09-10",
+        "status": "cancelled"
     }
 ]
