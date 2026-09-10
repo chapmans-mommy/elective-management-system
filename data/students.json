@@ -1,0 +1,20 @@
+[
+    {
+        "id": 1,
+        "name": "Иванова Валерия Денисовна",
+        "group": "ЭФБО-02-24",
+        "email": "ivanova.v.d@edu.mirea.ru"
+    },
+    {
+        "id": 2,
+        "name": "Головушкина София Владиславовна",
+        "group": "ЭФБО-02-24",
+        "email": "golovushkina.s.v@edu.mirea.ru"
+    },
+    {
+        "id": 3,
+        "name": "Смирнова Анна Викторовна",
+        "group": "ЭФБО-01-24",
+        "email": "smirnova.a.v@edu.mirea.ru"
+    }
+]

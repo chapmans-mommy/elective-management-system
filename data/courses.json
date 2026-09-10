@@ -1,0 +1,29 @@
+[
+    {
+        "id": 1,
+        "name": "Введение в искусственный интеллект",
+        "description": "Базовые понятия ИИ и машинного обучения",
+        "teacher": "старший преподаватель Макиевский С.Е.",
+        "max_students": 30,
+        "current_students": 28,
+        "start_date": "2026-10-01"
+    },
+    {
+        "id": 2,
+        "name": "Веб-разработка на Django",
+        "description": "Создание веб-приложений на Python",
+        "teacher": "доцент Петрова М.И.",
+        "max_students": 25,
+        "current_students": 25,
+        "start_date": "2026-10-05"
+    },
+    {
+        "id": 3,
+        "name": "Базы данных и SQL",
+        "description": "Проектирование и работа с реляционными БД",
+        "teacher": "профессор Сидоров А.П.",
+        "max_students": 20,
+        "current_students": 12,
+        "start_date": "2026-10-10"
+    }
+]
