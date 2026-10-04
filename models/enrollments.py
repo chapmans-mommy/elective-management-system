@@ -139,3 +139,20 @@ def print_enrollments(
         return
     for e in enrollments:
         print(f"  {e}")
+
+def find_enrollment_by_id(
+    enrollments: List[Enrollment], enrollment_id: int
+) -> Optional[Enrollment]:
+    """Найти запись по идентификатору.
+
+    Args:
+        enrollments: список записей.
+        enrollment_id: идентификатор записи.
+
+    Returns:
+        Объект Enrollment или None.
+    """
+    for e in enrollments:
+        if e.id == enrollment_id:
+            return e
+    return None

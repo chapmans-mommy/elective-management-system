@@ -40,6 +40,38 @@ course (объект Course), enrollment_date, is_cancelled
   - `enrollments.py` — класс Enrollment + функции
 - `data/` — JSON-файлы
 - `tests/` — тесты pytest
+- `manage.py` — управление Django
+- `elective_system/` — настройки проекта (`settings.py`, `urls.py`)
+- `homepage/` — главная страница и функция `page()`
+- `courses/` — приложение для курсов
+- `students/` — приложение для студентов
+- `enrollments/` — приложение для записей
+
+## Веб-интерфейс на Django
+
+### Запуск
+
+    python manage.py runserver
+
+Открыть http://127.0.0.1:8000/
+
+### Страницы
+
+| URL | Назначение | View-функция |
+|-----|-----------|--------------|
+| `/` | Главная | `homepage.views.index` |
+| `/courses/` | Список курсов | `courses.views.courses_list` |
+| `/courses/<int:course_id>/` | Страница курса | `courses.views.course_detail` |
+| `/students/` | Список студентов | `students.views.students_list` |
+| `/enrollments/` | Список записей | `enrollments.views.enrollments_list` |
+| `/enrollments/<int:enrollment_id>/` | Страница записи | `enrollments.views.enrollment_detail` |
+
+
+### Используемые технологии
+
+- Django 5.2
+- Bootstrap 5.3 (CDN)
+- JSON-хранилище из ПР3
 
 ## Формат данных
 
