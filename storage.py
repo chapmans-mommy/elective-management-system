@@ -8,7 +8,7 @@ from models import Course, Student, Enrollment
 
 
 def load_courses(filename: str) -> List[Course]:
-    """Загрузить курсы из JSON и преобразовать в объекты."""
+    """Загрузить курсы из JSON и преобразовать в объекты. Функция возвращает список объектов Course — тип List[Course]"""
     if not os.path.exists(filename):
         print(f"Файл {filename} не найден.")
         return []

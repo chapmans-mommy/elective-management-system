@@ -58,3 +58,33 @@ def index(request) -> HttpResponse:
     <a href="/enrollments/" class="btn btn-success">Записи</a>
     """
     return HttpResponse(page("Главная", content))
+
+def page_not_found(request, exception=None) -> HttpResponse:
+    """Страница 404: объект или адрес не найдены.
+
+    Args:
+        request: HTTP-запрос.
+        exception: исключение, вызвавшее 404 (обычно не используется).
+
+    Returns:
+        HTTP-ответ со статусом 404 и HTML-страницей.
+    """
+    content = """
+    <div class="text-center mt-5">
+        <h1 class="display-1 text-danger">404</h1>
+        <h2 class="mb-3">Страница не найдена</h2>
+        <p class="lead">
+            Возможно, объект был удалён, либо адрес введён неверно.
+        </p>
+        <a href="/" class="btn btn-primary">
+            ← Вернуться на главную
+        </a>
+        <a href="/courses/" class="btn btn-outline-secondary ms-2">
+            К списку курсов
+        </a>
+    </div>
+    """
+    return HttpResponse(
+        page("Страница не найдена", content),
+        status=404,
+    )
