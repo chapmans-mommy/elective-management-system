@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Курсы — Факультативы{% endblock %}
+
+{% block content %}
+<h1>Курсы</h1>
+<p>Всего курсов: {{ courses|length }}</p>
+
+<div class="row">
+    {% for course in courses %}
+        {% include "courses/includes/course_card.html" %}
+    {% empty %}
+        <p>Курсы не найдены.</p>
+    {% endfor %}
+</div>
+{% endblock %}

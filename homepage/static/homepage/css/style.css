@@ -1,0 +1,25 @@
+body {
+    background-color: #f8f9fa;
+}
+
+.course-card {
+    transition: transform 0.15s ease;
+    border-left: 4px solid #0d6efd;
+}
+
+.course-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.enrollment-status {
+    font-size: 0.85em;
+}
+
+.enrollment-status-active {
+    background-color: #198754 !important;
+}
+
+.enrollment-status-cancelled {
+    background-color: #6c757d !important;
+}

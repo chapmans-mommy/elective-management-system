@@ -31,21 +31,52 @@ course (объект Course), enrollment_date, is_cancelled
 
 ## Структура проекта
 
-- `main.py` — точка запуска, меню
-- `storage.py` — JSON с преобразованием в объекты
-- `utils.py` — безопасный ввод
-- `models/` — пакет с классами
-  - `courses.py` — класс Course + функции
-  - `students.py` — класс Student + функции
-  - `enrollments.py` — класс Enrollment + функции
-- `data/` — JSON-файлы
-- `tests/` — тесты pytest
-- `manage.py` — управление Django
-- `elective_system/` — настройки проекта (`settings.py`, `urls.py`)
-- `homepage/` — главная страница и функция `page()`
-- `courses/` — приложение для курсов
-- `students/` — приложение для студентов
-- `enrollments/` — приложение для записей
+- `main.py` — консольная версия приложения (сохранена из ПР3)
+- `storage.py` — загрузка и сохранение данных в JSON
+- `utils.py` — безопасный ввод для консольной версии
+- `manage.py` — управление Django-проектом
+- `models/` — пакет с классами предметной области (ПР3)
+  - `courses.py` — класс `Course` + функции работы с курсами
+  - `students.py` — класс `Student` + функции работы со студентами
+  - `enrollments.py` — класс `Enrollment` + функции работы с записями
+- `data/` — JSON-файлы данных
+  - `courses.json`
+  - `students.json`
+  - `enrollments.json`
+- `tests/` — тесты pytest для классов предметной области
+- `elective_system/` — настройки Django-проекта
+  - `settings.py`
+  - `urls.py`
+- `homepage/` — Django-приложение главной страницы
+  - `views.py` — view-функции `index()` и `page_not_found()`
+  - `urls.py` — маршруты приложения
+  - `templates/homepage/index.html` — шаблон главной
+  - `static/homepage/` — собственные статические файлы
+    - `css/style.css`
+    - `js/main.js`
+    - `img/logo.png`
+- `courses/` — Django-приложение курсов
+  - `views.py` — `courses_list()`, `course_detail()`
+  - `urls.py` — маршруты с `app_name = "courses"`
+  - `templates/courses/`
+    - `course_list.html`
+    - `course_detail.html`
+    - `includes/course_card.html`
+- `students/` — Django-приложение студентов
+  - `views.py` — `students_list()`
+  - `urls.py` — маршруты с `app_name = "students"`
+  - `templates/students/student_list.html`
+- `enrollments/` — Django-приложение записей
+  - `views.py` — `enrollments_list()`, `enrollment_detail()`
+  - `urls.py` — маршруты с `app_name = "enrollments"`
+  - `templates/enrollments/`
+    - `enrollment_list.html`
+    - `enrollment_detail.html`
+    - `includes/enrollment_status.html`
+- `templates/` — шаблоны уровня проекта
+  - `base.html` — базовый шаблон с блоками `title` и `content`
+  - `404.html` — кастомная страница 404
+  - `includes/navigation.html` — навигация
 
 ## Веб-интерфейс на Django
 
@@ -66,6 +97,25 @@ course (объект Course), enrollment_date, is_cancelled
 | `/enrollments/` | Список записей | `enrollments.views.enrollments_list` |
 | `/enrollments/<int:enrollment_id>/` | Страница записи | `enrollments.views.enrollment_detail` |
 
+
+## Django Template Language
+
+- `templates/base.html` — базовый шаблон с блоками `title` и `content`
+- дочерние шаблоны используют `{% extends "base.html" %}`
+- включаемые фрагменты через `{% include %}`:
+  - `includes/navigation.html` — навигация
+  - `courses/includes/course_card.html` — карточка курса
+  - `enrollments/includes/enrollment_status.html` — статус записи
+- циклы `{% for %}`, условия `{% if %}`, `{% empty %}`
+- фильтры `|length`, `|default`
+- именованные URL через `{% url %}` с пространствами имён
+- статические файлы (`{% load static %}`): CSS, JS, логотип
+
+## Статические файлы
+
+- `homepage/static/homepage/css/style.css` — собственные стили
+- `homepage/static/homepage/js/main.js` — вывод текущего года в подвал
+- `homepage/static/homepage/img/logo.png` — логотип в навигации
 
 ### Используемые технологии
 

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Страница не найдена — Факультативы{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1 class="display-1 text-danger">404</h1>
+    <h2 class="mb-3">Страница не найдена</h2>
+    <p class="lead">
+        Возможно, объект был удалён, либо адрес введён неверно.
+    </p>
+    <a href="{% url 'homepage:index' %}" class="btn btn-primary">
+        ← Вернуться на главную
+    </a>
+</div>
+{% endblock %}

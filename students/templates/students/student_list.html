@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block title %}Студенты — Факультативы{% endblock %}
+
+{% block content %}
+<h1>Студенты</h1>
+<p>Всего студентов: {{ students|length }}</p>
+
+<ul class="list-group">
+    {% for student in students %}
+    <li class="list-group-item">
+        <strong>{{ student.name }}</strong> —
+        {{ student.group }} ({{ student.email }})
+    </li>
+    {% empty %}
+    <li class="list-group-item">Студенты не найдены.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

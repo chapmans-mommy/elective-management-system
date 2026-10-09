@@ -4,8 +4,10 @@ from django.urls import path
 
 from . import views
 
+app_name = "enrollments"
+
 urlpatterns = [
-    path("", views.enrollments_list, name="enrollments_list"),
+    path("", views.enrollments_list, name="list"),
     path("<int:enrollment_id>/", views.enrollment_detail,
-         name="enrollment_detail"),
+         name="detail"),
 ]

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Записи — Факультативы{% endblock %}
+
+{% block content %}
+<h1>Записи на курсы</h1>
+<p>Всего записей: {{ enrollments|length }}</p>
+
+<ul class="list-group">
+    {% for enrollment in enrollments %}
+    <li class="list-group-item d-flex justify-content-between
+               align-items-center">
+        <a href="{% url 'enrollments:detail' enrollment.id %}">
+            {{ enrollment.student.name }} → {{ enrollment.course.name }}
+        </a>
+        {% include "enrollments/includes/enrollment_status.html" %}
+    </li>
+    {% empty %}
+    <li class="list-group-item">Записи не найдены.</li>
+    {% endfor %}
+</ul>
+{% endblock %}

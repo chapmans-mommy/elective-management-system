@@ -1,0 +1,21 @@
+<div class="col-md-6 mb-3">
+    <article class="card course-card h-100">
+        <div class="card-body">
+            <h2 class="card-title">
+                {{ course.name|default:"Без названия" }}
+            </h2>
+            <p class="card-text">{{ course.description }}</p>
+            <p class="card-text">
+                <strong>Преподаватель:</strong> {{ course.teacher }}
+            </p>
+            <p class="card-text">
+                <strong>Мест:</strong>
+                {{ course.current_students }} / {{ course.max_students }}
+            </p>
+            <a href="{% url 'courses:detail' course.id %}"
+               class="btn btn-primary">
+                Подробнее
+            </a>
+        </div>
+    </article>
+</div>

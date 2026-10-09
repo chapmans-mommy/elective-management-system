@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if course %}{{ course.name }} — Факультативы
+{% else %}Курс не найден — Факультативы{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if course %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">{{ course.name }}</h1>
+        <p class="card-text">{{ course.description }}</p>
+        <p class="card-text">
+            <strong>Преподаватель:</strong> {{ course.teacher }}
+        </p>
+        <p class="card-text">
+            <strong>Дата начала:</strong> {{ course.start_date }}
+        </p>
+        <p class="card-text">
+            <strong>Мест:</strong>
+            {{ course.current_students }} / {{ course.max_students }}
+        </p>
+    </div>
+</div>
+{% else %}
+<h1 class="text-danger">Курс не найден</h1>
+<p>Курс с указанным идентификатором отсутствует.</p>
+{% endif %}
+
+<a href="{% url 'courses:list' %}"
+   class="btn btn-outline-secondary mt-3">
+    ← к списку курсов
+</a>
+{% endblock %}

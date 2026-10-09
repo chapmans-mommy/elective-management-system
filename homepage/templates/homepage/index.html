@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}Главная — Факультативы{% endblock %}
+
+{% block content %}
+<h1 class="display-4">Система управления факультативами</h1>
+<p class="lead">
+    Приложение для учёта факультативных курсов и записи студентов.
+</p>
+<p>Основные разделы:</p>
+<a href="{% url 'courses:list' %}" class="btn btn-primary me-2">Курсы</a>
+<a href="{% url 'students:list' %}" class="btn btn-secondary me-2">Студенты</a>
+<a href="{% url 'enrollments:list' %}" class="btn btn-success">Записи</a>
+{% endblock %}

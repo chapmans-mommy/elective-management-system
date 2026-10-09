@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if enrollment %}
+Запись №{{ enrollment.id }} — Факультативы
+{% else %}
+Запись не найдена — Факультативы
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if enrollment %}
+<div class="card">
+    <div class="card-body">
+        <h1 class="card-title">
+            Запись №{{ enrollment.id }}
+        </h1>
+        <p class="card-text">
+            <strong>Студент:</strong> {{ enrollment.student.name }}
+        </p>
+        <p class="card-text">
+            <strong>Курс:</strong> {{ enrollment.course.name }}
+        </p>
+        <p class="card-text">
+            <strong>Дата записи:</strong>
+            {{ enrollment.enrollment_date }}
+        </p>
+        <p class="card-text">
+            <strong>Статус:</strong>
+            {% include "enrollments/includes/enrollment_status.html" %}
+        </p>
+    </div>
+</div>
+{% else %}
+<h1 class="text-danger">Запись не найдена</h1>
+<p>Запись с указанным идентификатором отсутствует.</p>
+{% endif %}
+
+<a href="{% url 'enrollments:list' %}"
+   class="btn btn-outline-secondary mt-3">
+    ← к списку записей
+</a>
+{% endblock %}
