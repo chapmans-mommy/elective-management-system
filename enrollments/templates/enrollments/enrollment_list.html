@@ -3,16 +3,22 @@
 {% block title %}Записи — Факультативы{% endblock %}
 
 {% block content %}
-<h1>Записи на курсы</h1>
+<h1>{% if active_only %}Активные записи{% else %}Записи на курсы{% endif %}</h1>
+<div class="mb-3">
+    <a href="{% url 'enrollments:list' %}" class="btn btn-outline-secondary">Все записи</a>
+    <a href="{% url 'enrollments:active' %}" class="btn btn-outline-success">Активные записи</a>
+    <a href="{% url 'enrollments:statistics' %}" class="btn btn-outline-primary">Статистика</a>
+</div>
 <p>Всего записей: {{ enrollments|length }}</p>
-
 <ul class="list-group">
     {% for enrollment in enrollments %}
-    <li class="list-group-item d-flex justify-content-between
-               align-items-center">
-        <a href="{% url 'enrollments:detail' enrollment.id %}">
-            {{ enrollment.student.name }} → {{ enrollment.course.name }}
-        </a>
+    <li class="list-group-item d-flex justify-content-between align-items-center gap-3">
+        <div>
+            <a href="{% url 'enrollments:detail' enrollment.id %}">
+                {{ enrollment.student_name }} → {{ enrollment.course_name }}
+            </a>
+            <p class="mb-0 text-muted">{{ enrollment.group_name }} · {{ enrollment.enrollment_date }}</p>
+        </div>
         {% include "enrollments/includes/enrollment_status.html" %}
     </li>
     {% empty %}

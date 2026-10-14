@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Статистика — Факультативы{% endblock %}
+
+{% block content %}
+<h1>Статистика факультативов</h1>
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h2 class="h4">Курсы и места</h2>
+        <p>Курсов: {{ course_totals.course_count }}</p>
+        <p>Всего мест: {{ course_totals.total_seats }};
+            занято: {{ course_totals.occupied_seats }};
+            свободно: {{ course_totals.free_seats }}.</p>
+        <p>Средняя вместимость: {{ course_totals.average_capacity }}</p>
+    </div>
+    <div class="col-md-6">
+        <h2 class="h4">Журнал записей</h2>
+        <p>Всего записей: {{ enrollment_totals.total }}</p>
+        <p>Активных: {{ enrollment_totals.active }};
+            отменённых: {{ enrollment_totals.cancelled }}.</p>
+    </div>
+</div>
+<h2 class="h4">Записи по курсам</h2>
+<div class="table-responsive mb-4">
+    <table class="table table-striped">
+        <thead><tr><th scope="col">Курс</th><th scope="col">Занято / всего мест</th>
+            <th scope="col">Свободно</th><th scope="col">Всего записей</th>
+            <th scope="col">Активных</th><th scope="col">Отменённых</th></tr></thead>
+        <tbody>
+            {% for course in course_statistics %}
+            <tr>
+                <td><a href="{% url 'courses:detail' course.id %}">{{ course.name }}</a></td>
+                <td>{{ course.current_students }} / {{ course.max_students }}</td>
+                <td>{{ course.free_seats }}</td><td>{{ course.total_enrollments }}</td>
+                <td>{{ course.active }}</td><td>{{ course.cancelled }}</td>
+            </tr>
+            {% empty %}<tr><td colspan="6">Курсов пока нет.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div>
+<h2 class="h4">Записи по студентам</h2>
+<div class="table-responsive mb-4">
+    <table class="table table-striped">
+        <thead><tr><th scope="col">Студент</th><th scope="col">Группа</th>
+            <th scope="col">Всего записей</th><th scope="col">Активных</th>
+            <th scope="col">Отменённых</th></tr></thead>
+        <tbody>
+            {% for student in student_statistics %}
+            <tr><td>{{ student.name }}</td><td>{{ student.group_name }}</td>
+                <td>{{ student.total_enrollments }}</td><td>{{ student.active }}</td>
+                <td>{{ student.cancelled }}</td></tr>
+            {% empty %}<tr><td colspan="5">Студентов пока нет.</td></tr>{% endfor %}
+        </tbody>
+    </table>
+</div>
+<h2 class="h4">Студенты по группам</h2>
+<ul class="list-group mb-4">
+    {% for group in group_statistics %}
+    <li class="list-group-item">{{ group.group_name }}: {{ group.student_count }}</li>
+    {% empty %}<li class="list-group-item">Групп пока нет.</li>{% endfor %}
+</ul>
+<h2 class="h4">Популярные курсы</h2>
+<form method="get" action="{% url 'enrollments:statistics' %}" class="mb-3">
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">Показать</button>
+</form>
+{% if not form.errors %}
+<p>Курсы с числом активных записей больше {{ threshold }}:</p>
+<ul class="list-group mb-3">
+    {% for course in popular_courses %}
+    <li class="list-group-item">
+        <a href="{% url 'courses:detail' course.id %}">{{ course.name }}</a>: {{ course.active }}
+    </li>
+    {% empty %}<li class="list-group-item">Курсы с таким количеством записей не найдены.</li>{% endfor %}
+</ul>
+{% endif %}
+<a href="{% url 'enrollments:list' %}" class="btn btn-outline-secondary">← к записям</a>
+{% endblock %}

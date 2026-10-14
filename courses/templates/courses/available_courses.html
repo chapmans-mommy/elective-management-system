@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Свободные места — Факультативы{% endblock %}
+
+{% block content %}
+<h1>Курсы со свободными местами</h1>
+<p>Выберите дату: покажем курсы, начинающиеся в этот день или позже,
+    на которых осталось нужное количество мест.</p>
+<form method="get" action="{% url 'courses:available' %}" class="mb-4">
+    {{ form.as_p }}
+    <button class="btn btn-primary" type="submit">Найти курсы</button>
+</form>
+{% if searched %}
+<p>Найдено курсов: {{ courses|length }}</p>
+<div class="row">
+    {% for course in courses %}
+        {% include "courses/includes/course_card.html" %}
+    {% empty %}
+        <p>На выбранную дату подходящих курсов со свободными местами нет.</p>
+    {% endfor %}
+</div>
+{% elif not form.is_bound %}
+<p>Укажите дату начала поиска.</p>
+{% endif %}
+<a href="{% url 'courses:list' %}" class="btn btn-outline-secondary">
+    ← к списку курсов
+</a>
+{% endblock %}

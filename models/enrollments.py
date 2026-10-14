@@ -140,6 +140,7 @@ def print_enrollments(
     for e in enrollments:
         print(f"  {e}")
 
+
 def find_enrollment_by_id(
     enrollments: List[Enrollment], enrollment_id: int
 ) -> Optional[Enrollment]:

@@ -8,6 +8,7 @@ app_name = "enrollments"
 
 urlpatterns = [
     path("", views.enrollments_list, name="list"),
-    path("<int:enrollment_id>/", views.enrollment_detail,
-         name="detail"),
+    path("active/", views.active_enrollments, name="active"),
+    path("statistics/", views.statistics, name="statistics"),
+    path("<int:enrollment_id>/", views.enrollment_detail, name="detail"),
 ]

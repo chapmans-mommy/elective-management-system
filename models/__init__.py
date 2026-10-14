@@ -1,4 +1,3 @@
-
 from .courses import Course
 from .students import Student
 from .enrollments import Enrollment

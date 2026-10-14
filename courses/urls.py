@@ -8,6 +8,6 @@ app_name = "courses"
 
 urlpatterns = [
     path("", views.courses_list, name="list"),
+    path("available/", views.available_courses, name="available"),
     path("<int:course_id>/", views.course_detail, name="detail"),
-    
 ]

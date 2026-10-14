@@ -16,10 +16,10 @@
             Запись №{{ enrollment.id }}
         </h1>
         <p class="card-text">
-            <strong>Студент:</strong> {{ enrollment.student.name }}
+            <strong>Студент:</strong> {{ enrollment.student_name }}
         </p>
         <p class="card-text">
-            <strong>Курс:</strong> {{ enrollment.course.name }}
+            <strong>Курс:</strong> <a href="{% url 'courses:detail' enrollment.course_id %}">{{ enrollment.course_name }}</a>
         </p>
         <p class="card-text">
             <strong>Дата записи:</strong>

@@ -12,6 +12,8 @@
                 <strong>Мест:</strong>
                 {{ course.current_students }} / {{ course.max_students }}
             </p>
+            <p class="card-text"><strong>Свободных мест:</strong> {{ course.free_seats }}</p>
+            <p class="card-text"><strong>Дата начала:</strong> {{ course.start_date|default:"Не указана" }}</p>
             <a href="{% url 'courses:detail' course.id %}"
                class="btn btn-primary">
                 Подробнее

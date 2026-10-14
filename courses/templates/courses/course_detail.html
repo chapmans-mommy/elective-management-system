@@ -15,12 +15,13 @@
             <strong>Преподаватель:</strong> {{ course.teacher }}
         </p>
         <p class="card-text">
-            <strong>Дата начала:</strong> {{ course.start_date }}
+            <strong>Дата начала:</strong> {{ course.start_date|default:"Не указана" }}
         </p>
         <p class="card-text">
             <strong>Мест:</strong>
             {{ course.current_students }} / {{ course.max_students }}
         </p>
+        <p class="card-text"><strong>Свободных мест:</strong> {{ course.free_seats }}</p>
     </div>
 </div>
 {% else %}

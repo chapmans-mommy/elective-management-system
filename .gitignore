@@ -4,3 +4,9 @@ __pycache__
 db.sqlite3
 db.sqlite3-journal
 *.log
+venv/
+.pytest_cache/
+.idea/
+*.sqlite-journal
+*.sqlite-wal
+*.sqlite-shm

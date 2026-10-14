@@ -1,7 +1,7 @@
 # Система управления факультативами
 
-Консольное приложение для учёта факультативных курсов
-и управления записью студентов.
+Веб-приложение на Django для учёта факультативных курсов
+и управления записью студентов. Консольная версия из ПР3 сохранена.
 
 ## Возможности
 
@@ -82,6 +82,7 @@ course (объект Course), enrollment_date, is_cancelled
 
 ### Запуск
 
+    python -m db.import_json
     python manage.py runserver
 
 Открыть http://127.0.0.1:8000/
@@ -96,6 +97,9 @@ course (объект Course), enrollment_date, is_cancelled
 | `/students/` | Список студентов | `students.views.students_list` |
 | `/enrollments/` | Список записей | `enrollments.views.enrollments_list` |
 | `/enrollments/<int:enrollment_id>/` | Страница записи | `enrollments.views.enrollment_detail` |
+| `/courses/available/` | Свободные места по дате начала | `courses.views.available_courses` |
+| `/enrollments/active/` | Активные записи | `enrollments.views.active_enrollments` |
+| `/enrollments/statistics/` | Статистика | `enrollments.views.statistics` |
 
 
 ## Django Template Language
@@ -121,11 +125,13 @@ course (объект Course), enrollment_date, is_cancelled
 
 - Django 5.2
 - Bootstrap 5.3 (CDN)
-- JSON-хранилище из ПР3
+- SQLite и стандартная библиотека sqlite3 (ПР7)
+- JSON-хранилище консольной версии из ПР3
 
 ## Формат данных
 
-Данные хранятся в JSON-файлах в каталоге `data/`:
+Исходные данные для импорта и консольной версии хранятся в JSON-файлах
+в каталоге `data/`. Веб-приложение ПР7 читает `data/electives.sqlite`:
 
 - `courses.json` — список курсов;
 - `students.json` — список студентов;
@@ -152,3 +158,156 @@ python -m pytest
 ## Проверка качества кода
 
 flake8 --exclude=venv,.venv,__pycache__,.pytest_cache
+
+## Текущий этап разработки: ПР7
+
+Веб-приложение получает данные из отдельной базы `data/electives.sqlite`
+через стандартную библиотеку `sqlite3`. Таблицы создаются SQL-командами,
+без Django ORM и миграций предметной области. Служебная Django-база
+`db.sqlite3` остаётся отдельной.
+
+### Структура базы данных
+
+| Таблица | Поля и типы |
+|---------|-------------|
+| `courses` | `id INTEGER`, `name TEXT`, `description TEXT`, `teacher TEXT`, `max_students INTEGER`, `current_students INTEGER`, `start_date TEXT` |
+| `students` | `id INTEGER`, `name TEXT`, `group_name TEXT`, `email TEXT` |
+| `enrollments` | `id INTEGER`, `student_id INTEGER`, `course_id INTEGER`, `enrollment_date TEXT`, `is_cancelled INTEGER` |
+
+- Первичный ключ каждой таблицы: `id INTEGER PRIMARY KEY`.
+- Внешние ключи: `enrollments.student_id → students.id` и
+  `enrollments.course_id → courses.id`.
+- `description` и `start_date` могут иметь значение `NULL`,
+  остальные поля обязательны.
+- Даты хранятся как `TEXT` в формате `YYYY-MM-DD`.
+- `is_cancelled`: 0 — активная запись, 1 — отменённая; значение по умолчанию 0.
+- `max_students > 0`; `current_students` от 0 до `max_students`.
+- Для связей записей и даты начала курсов созданы индексы.
+
+Число занятых мест `current_students` переносится из JSON без пересчёта:
+исходный журнал содержит только 5 записей и не описывает всю занятость
+курсов. Свободные места равны `max_students - current_students`.
+Статистика записей отдельно считает фактические строки журнала,
+включая отменённые записи. Курсы и студенты без записей также отображаются.
+
+### Файлы и импорт
+
+- `sql/schema.sql` — таблицы, ограничения и индексы.
+- `sql/queries.sql` — 16 запросов с комментариями и примерами параметров.
+- `db/database.py` — абсолютный путь к базе, `sqlite3.connect()`,
+  `sqlite3.Row` и `PRAGMA foreign_keys = ON` для каждого подключения.
+- `db/import_json.py` — создание схемы и перенос JSON через
+  `executemany()`, параметры `?`, `commit()` и `rollback()`.
+- `db/queries.py` — загрузка именованных запросов из SQL-файла:
+  представления используют тот же SQL, который проверяется в CLI.
+
+Для запуска из PowerShell в корне проекта:
+
+```powershell
+.\venv\Scripts\Activate.ps1
+python -m db.import_json
+python manage.py runserver
+```
+
+Импортировано 3 курса, 3 студента, 5 записей; исходные JSON сохранены.
+Повторный запуск импорта обновляет записи по идентификатору, не создавая
+дубликатов. Записи, добавленные только в SQLite, не удаляются. Ошибка
+импорта отменяет изменения всей транзакции. Статусы `active`/`cancelled`
+преобразуются в `is_cancelled`. Поле JSON `group` хранится как `group_name`.
+
+Если виртуального окружения ещё нет:
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+python -m db.import_json
+```
+
+### Запросы и пользовательские сценарии
+
+| № | Запрос | Назначение и страница |
+|---|--------|----------------------|
+| 1 | `courses_list` | Список курсов: `/courses/` |
+| 2 | `students_list` | Список студентов: `/students/` |
+| 3 | `courses_search` | Название/описание и минимум мест: `/courses/?q=SQL&min_seats=5` |
+| 4 | `available_courses` | Места и дата начала: `/courses/available/?date=2026-10-01&min_seats=1` |
+| 5 | `enrollments_list` | Журнал с данными курса и студента: `/enrollments/` |
+| 6 | `enrollment_detail` | Подробности записи: `/enrollments/1/` |
+| 7 | `course_totals` | COUNT, SUM, AVG мест: `/enrollments/statistics/` |
+| 8 | `enrollment_totals` | COUNT, SUM записей и статусов: статистика |
+| 9 | `course_statistics` | GROUP BY, LEFT JOIN записей по курсам: статистика |
+| 10 | `student_statistics` | GROUP BY, LEFT JOIN записей по студентам: статистика |
+| 11 | `popular_courses` | GROUP BY, HAVING активных записей больше порога: статистика |
+| 12 | `course_detail` | Карточка курса: `/courses/1/` |
+| 13 | `active_enrollments` | Активные записи: `/enrollments/active/` |
+| 14 | `students_by_group` | WHERE по группе: `/students/?group=ЭФБО-02-24` |
+| 15 | `student_groups` | DISTINCT групп для формы на странице студентов |
+| 16 | `group_statistics` | GROUP BY, COUNT студентов по группам: статистика |
+
+Реализованы больше пяти сценариев: просмотр и поиск курсов, карточка курса,
+поиск свободных мест по дате начала, просмотр студентов и фильтр по группе,
+журнал всех/активных записей, подробности записи, статистика и фильтр
+популярных курсов по числу активных записей.
+
+Поиск по дате означает: курс начинается в выбранный день или позже
+и имеет необходимое количество свободных мест. Это адаптация примера
+поиска помещений к факультативам; расписание отдельных занятий в исходных
+данных отсутствует. Например, на 2026-10-01 доступны курсы 1 и 3,
+на 2026-10-10 — курс 3. Полный курс 2 не попадает в результаты.
+
+Представления `courses/views.py`, `students/views.py`, `enrollments/views.py`
+получают именованные строки SQLite и передают их через контекст шаблонам.
+Введённые значения передаются параметрами `?`, даты и числа проверяются
+Django-формами. Переходы и действия форм используют именованные URL;
+раздел «Статистика» добавлен в общее меню.
+
+### Проверка SQL в SQLite CLI
+
+SQLite CLI установлен в текущем `venv/Scripts/sqlite3.exe`.
+После активации окружения:
+
+```powershell
+sqlite3 data/electives.sqlite
+```
+
+В консоли SQLite можно проверить таблицы и связи:
+
+```sql
+.tables
+.schema
+PRAGMA foreign_keys = ON;
+PRAGMA foreign_key_check;
+SELECT COUNT(*) FROM courses;
+SELECT COUNT(*) FROM students;
+SELECT COUNT(*) FROM enrollments;
+```
+
+Все 16 запросов проверены в SQLite CLI с параметрами из комментариев
+к `sql/queries.sql`. Для параметризованного поиска по дате:
+
+```sql
+.parameter init
+.parameter set ?1 "'2026-10-01'"
+.parameter set ?2 1
+SELECT id, name, start_date, max_students - current_students AS free_seats
+FROM courses
+WHERE start_date >= ?1
+  AND max_students - current_students >= ?2
+  AND current_students < max_students
+ORDER BY start_date, name, id;
+.exit
+```
+
+### Проверки проекта
+
+```powershell
+python manage.py check
+python -m pytest -v
+python -m flake8 . --extend-exclude=venv
+```
+
+Тесты проверяют прежние классы, сохранность импортированных данных,
+внешние ключи, откат неуспешного импорта, повторный импорт без дубликатов,
+статистику, страницы и поиск, неверный ввод, SQL-инъекции, пустую базу
+и отображение изменения записи непосредственно из SQLite.
