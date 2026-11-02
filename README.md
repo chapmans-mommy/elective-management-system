@@ -1,313 +1,229 @@
 # Система управления факультативами
 
-Веб-приложение на Django для учёта факультативных курсов
-и управления записью студентов. Консольная версия из ПР3 сохранена.
+Веб-приложение для просмотра факультативов, студентов, записей и статистики.
+ПР9 продолжает проект ПР1–ПР7: веб-слой работает через Django ORM.
+Консольная версия ПР3 и исходная SQL-реализация ПР7 сохранены.
 
-## Возможности
+## Технологии
 
-- просмотр и поиск курсов;
-- фильтрация по доступности;
-- сортировка по названию и количеству мест;
-- запись студента на курс;
-- отмена записи;
-- статистика (топ курсов, количество записей).
+- Python 3.10+, Django 5.2, SQLite.
+- Django ORM, миграции и Django Template Language.
+- Bootstrap 5.3, pytest, flake8.
+- Django Debug Toolbar 6.2 для просмотра SQL при локальной демонстрации.
 
-## Основные классы
+## Запуск из PowerShell
 
-### Course — факультативный курс
-**Атрибуты:** id, name, description, teacher,
-max_students, current_students, start_date
-**Методы:** has_free_seats(), free_seats(),
-from_data(), to_data(), __str__()
+После клонирования репозитория перейдите в его корень:
 
-### Student — студент
-**Атрибуты:** id, name, group, email
-**Методы:** from_data(), to_data(), __str__()
-
-### Enrollment — запись на курс
-**Атрибуты:** id, student (объект Student),
-course (объект Course), enrollment_date, is_cancelled
-**Методы:** cancel(), is_active(), from_data(), to_data(), __str__()
-
-## Структура проекта
-
-- `main.py` — консольная версия приложения (сохранена из ПР3)
-- `storage.py` — загрузка и сохранение данных в JSON
-- `utils.py` — безопасный ввод для консольной версии
-- `manage.py` — управление Django-проектом
-- `models/` — пакет с классами предметной области (ПР3)
-  - `courses.py` — класс `Course` + функции работы с курсами
-  - `students.py` — класс `Student` + функции работы со студентами
-  - `enrollments.py` — класс `Enrollment` + функции работы с записями
-- `data/` — JSON-файлы данных
-  - `courses.json`
-  - `students.json`
-  - `enrollments.json`
-- `tests/` — тесты pytest для классов предметной области
-- `elective_system/` — настройки Django-проекта
-  - `settings.py`
-  - `urls.py`
-- `homepage/` — Django-приложение главной страницы
-  - `views.py` — view-функции `index()` и `page_not_found()`
-  - `urls.py` — маршруты приложения
-  - `templates/homepage/index.html` — шаблон главной
-  - `static/homepage/` — собственные статические файлы
-    - `css/style.css`
-    - `js/main.js`
-    - `img/logo.png`
-- `courses/` — Django-приложение курсов
-  - `views.py` — `courses_list()`, `course_detail()`
-  - `urls.py` — маршруты с `app_name = "courses"`
-  - `templates/courses/`
-    - `course_list.html`
-    - `course_detail.html`
-    - `includes/course_card.html`
-- `students/` — Django-приложение студентов
-  - `views.py` — `students_list()`
-  - `urls.py` — маршруты с `app_name = "students"`
-  - `templates/students/student_list.html`
-- `enrollments/` — Django-приложение записей
-  - `views.py` — `enrollments_list()`, `enrollment_detail()`
-  - `urls.py` — маршруты с `app_name = "enrollments"`
-  - `templates/enrollments/`
-    - `enrollment_list.html`
-    - `enrollment_detail.html`
-    - `includes/enrollment_status.html`
-- `templates/` — шаблоны уровня проекта
-  - `base.html` — базовый шаблон с блоками `title` и `content`
-  - `404.html` — кастомная страница 404
-  - `includes/navigation.html` — навигация
-
-## Веб-интерфейс на Django
-
-### Запуск
-
-    python -m db.import_json
-    python manage.py runserver
-
-Открыть http://127.0.0.1:8000/
-
-### Страницы
-
-| URL | Назначение | View-функция |
-|-----|-----------|--------------|
-| `/` | Главная | `homepage.views.index` |
-| `/courses/` | Список курсов | `courses.views.courses_list` |
-| `/courses/<int:course_id>/` | Страница курса | `courses.views.course_detail` |
-| `/students/` | Список студентов | `students.views.students_list` |
-| `/enrollments/` | Список записей | `enrollments.views.enrollments_list` |
-| `/enrollments/<int:enrollment_id>/` | Страница записи | `enrollments.views.enrollment_detail` |
-| `/courses/available/` | Свободные места по дате начала | `courses.views.available_courses` |
-| `/enrollments/active/` | Активные записи | `enrollments.views.active_enrollments` |
-| `/enrollments/statistics/` | Статистика | `enrollments.views.statistics` |
-
-
-## Django Template Language
-
-- `templates/base.html` — базовый шаблон с блоками `title` и `content`
-- дочерние шаблоны используют `{% extends "base.html" %}`
-- включаемые фрагменты через `{% include %}`:
-  - `includes/navigation.html` — навигация
-  - `courses/includes/course_card.html` — карточка курса
-  - `enrollments/includes/enrollment_status.html` — статус записи
-- циклы `{% for %}`, условия `{% if %}`, `{% empty %}`
-- фильтры `|length`, `|default`
-- именованные URL через `{% url %}` с пространствами имён
-- статические файлы (`{% load static %}`): CSS, JS, логотип
-
-## Статические файлы
-
-- `homepage/static/homepage/css/style.css` — собственные стили
-- `homepage/static/homepage/js/main.js` — вывод текущего года в подвал
-- `homepage/static/homepage/img/logo.png` — логотип в навигации
-
-### Используемые технологии
-
-- Django 5.2
-- Bootstrap 5.3 (CDN)
-- SQLite и стандартная библиотека sqlite3 (ПР7)
-- JSON-хранилище консольной версии из ПР3
-
-## Формат данных
-
-Исходные данные для импорта и консольной версии хранятся в JSON-файлах
-в каталоге `data/`. Веб-приложение ПР7 читает `data/electives.sqlite`:
-
-- `courses.json` — список курсов;
-- `students.json` — список студентов;
-- `enrollments.json` — список записей.
-
-## Требования
-
-- Python 3.10+;
-- pytest;
-- flake8.
-
-Установка зависимостей:
-
-pip install -r requirements.txt
-
-## Запуск программы
-
-python main.py
-
-## Запуск тестов
-
-python -m pytest
-
-## Проверка качества кода
-
-flake8 --exclude=venv,.venv,__pycache__,.pytest_cache
-
-## Текущий этап разработки: ПР7
-
-Веб-приложение получает данные из отдельной базы `data/electives.sqlite`
-через стандартную библиотеку `sqlite3`. Таблицы создаются SQL-командами,
-без Django ORM и миграций предметной области. Служебная Django-база
-`db.sqlite3` остаётся отдельной.
-
-### Структура базы данных
-
-| Таблица | Поля и типы |
-|---------|-------------|
-| `courses` | `id INTEGER`, `name TEXT`, `description TEXT`, `teacher TEXT`, `max_students INTEGER`, `current_students INTEGER`, `start_date TEXT` |
-| `students` | `id INTEGER`, `name TEXT`, `group_name TEXT`, `email TEXT` |
-| `enrollments` | `id INTEGER`, `student_id INTEGER`, `course_id INTEGER`, `enrollment_date TEXT`, `is_cancelled INTEGER` |
-
-- Первичный ключ каждой таблицы: `id INTEGER PRIMARY KEY`.
-- Внешние ключи: `enrollments.student_id → students.id` и
-  `enrollments.course_id → courses.id`.
-- `description` и `start_date` могут иметь значение `NULL`,
-  остальные поля обязательны.
-- Даты хранятся как `TEXT` в формате `YYYY-MM-DD`.
-- `is_cancelled`: 0 — активная запись, 1 — отменённая; значение по умолчанию 0.
-- `max_students > 0`; `current_students` от 0 до `max_students`.
-- Для связей записей и даты начала курсов созданы индексы.
-
-Число занятых мест `current_students` переносится из JSON без пересчёта:
-исходный журнал содержит только 5 записей и не описывает всю занятость
-курсов. Свободные места равны `max_students - current_students`.
-Статистика записей отдельно считает фактические строки журнала,
-включая отменённые записи. Курсы и студенты без записей также отображаются.
-
-### Файлы и импорт
-
-- `sql/schema.sql` — таблицы, ограничения и индексы.
-- `sql/queries.sql` — 16 запросов с комментариями и примерами параметров.
-- `db/database.py` — абсолютный путь к базе, `sqlite3.connect()`,
-  `sqlite3.Row` и `PRAGMA foreign_keys = ON` для каждого подключения.
-- `db/import_json.py` — создание схемы и перенос JSON через
-  `executemany()`, параметры `?`, `commit()` и `rollback()`.
-- `db/queries.py` — загрузка именованных запросов из SQL-файла:
-  представления используют тот же SQL, который проверяется в CLI.
-
-Для запуска из PowerShell в корне проекта:
-
-```powershell
-.\venv\Scripts\Activate.ps1
-python -m db.import_json
-python manage.py runserver
-```
-
-Импортировано 3 курса, 3 студента, 5 записей; исходные JSON сохранены.
-Повторный запуск импорта обновляет записи по идентификатору, не создавая
-дубликатов. Записи, добавленные только в SQLite, не удаляются. Ошибка
-импорта отменяет изменения всей транзакции. Статусы `active`/`cancelled`
-преобразуются в `is_cancelled`. Поле JSON `group` хранится как `group_name`.
-
-Если виртуального окружения ещё нет:
-
-```powershell
+~~~powershell
+git clone https://github.com/chapmans-mommy/elective-management-system.git
+cd elective-management-system
+git switch pr9-orm
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
-python -m db.import_json
-```
+python manage.py migrate
+python db/inspect_source_db.py
+python db/import_sqlite_to_orm.py
+python manage.py runserver
+~~~
 
-### Запросы и пользовательские сценарии
+Откройте http://127.0.0.1:8000/. При существующем окружении начинайте с
+активации, установки зависимостей, миграций и переноса данных.
 
-| № | Запрос | Назначение и страница |
-|---|--------|----------------------|
-| 1 | `courses_list` | Список курсов: `/courses/` |
-| 2 | `students_list` | Список студентов: `/students/` |
-| 3 | `courses_search` | Название/описание и минимум мест: `/courses/?q=SQL&min_seats=5` |
-| 4 | `available_courses` | Места и дата начала: `/courses/available/?date=2026-10-01&min_seats=1` |
-| 5 | `enrollments_list` | Журнал с данными курса и студента: `/enrollments/` |
-| 6 | `enrollment_detail` | Подробности записи: `/enrollments/1/` |
-| 7 | `course_totals` | COUNT, SUM, AVG мест: `/enrollments/statistics/` |
-| 8 | `enrollment_totals` | COUNT, SUM записей и статусов: статистика |
-| 9 | `course_statistics` | GROUP BY, LEFT JOIN записей по курсам: статистика |
-| 10 | `student_statistics` | GROUP BY, LEFT JOIN записей по студентам: статистика |
-| 11 | `popular_courses` | GROUP BY, HAVING активных записей больше порога: статистика |
-| 12 | `course_detail` | Карточка курса: `/courses/1/` |
-| 13 | `active_enrollments` | Активные записи: `/enrollments/active/` |
-| 14 | `students_by_group` | WHERE по группе: `/students/?group=ЭФБО-02-24` |
-| 15 | `student_groups` | DISTINCT групп для формы на странице студентов |
-| 16 | `group_statistics` | GROUP BY, COUNT студентов по группам: статистика |
+## Модели и связи
 
-Реализованы больше пяти сценариев: просмотр и поиск курсов, карточка курса,
-поиск свободных мест по дате начала, просмотр студентов и фильтр по группе,
-журнал всех/активных записей, подробности записи, статистика и фильтр
-популярных курсов по числу активных записей.
+| Модель | Поля |
+|--------|------|
+| Course (courses/models.py) | id, name, description, teacher, max_students, current_students, start_date |
+| Student (students/models.py) | id, name, group_name, email |
+| Enrollment (enrollments/models.py) | id, student, course, enrollment_date, is_cancelled |
 
-Поиск по дате означает: курс начинается в выбранный день или позже
-и имеет необходимое количество свободных мест. Это адаптация примера
-поиска помещений к факультативам; расписание отдельных занятий в исходных
-данных отсутствует. Например, на 2026-10-01 доступны курсы 1 и 3,
-на 2026-10-10 — курс 3. Полный курс 2 не попадает в результаты.
+Первичные ключи id создаёт Django (BigAutoField). Даты — DateField,
+почта — EmailField, статус отмены — BooleanField с default=False.
+Описание и дата начала курса допускают NULL и пустой ввод; остальные
+поля обязательны. Вместимость положительна, занятость неотрицательна
+и не превышает вместимость: правила закреплены ограничениями базы.
 
-Представления `courses/views.py`, `students/views.py`, `enrollments/views.py`
-получают именованные строки SQLite и передают их через контекст шаблонам.
-Введённые значения передаются параметрами `?`, даты и числа проверяются
-Django-формами. Переходы и действия форм используют именованные URL;
-раздел «Статистика» добавлен в общее меню.
+Enrollment связан с Course и Student через ForeignKey. У обеих связей
+on_delete=PROTECT: курс или студент с записями не удаляется.
+related_name="enrollments" позволяет обращаться к course.enrollments.all()
+и student.enrollments.all(). Связанные объекты доступны через
+enrollment.course и enrollment.student. Student — сущность предметной
+области, а не пользователь системы аутентификации Django.
 
-### Проверка SQL в SQLite CLI
+Методы __str__ возвращают понятные названия. Course.free_seats — свойство
+со значением max_students - current_students; has_free_seats() проверяет
+наличие мест. Enrollment.cancel() сохраняет отменённый статус в базе.
+Демонстрация создания, изменения и удаления объектов выполняется через
+Django shell; формы изменения данных в ПР9 не добавлялись.
 
-SQLite CLI установлен в текущем `venv/Scripts/sqlite3.exe`.
-После активации окружения:
+## Базы данных, миграции и перенос
 
-```powershell
-sqlite3 data/electives.sqlite
-```
+- data/electives.sqlite — неизменённый источник ПР7, хранится в Git.
+- data/electives_backup.sqlite — локальная резервная копия до перехода;
+  исключена из Git.
+- db.sqlite3 — рабочая база Django, указана в DATABASES; исключена из Git.
+- courses/migrations/0001_initial.py, students/migrations/0001_initial.py,
+  enrollments/migrations/0001_initial.py создают таблицы ORM и связи.
 
-В консоли SQLite можно проверить таблицы и связи:
+После migrate скрипт db/import_sqlite_to_orm.py читает источник в режиме
+mode=ro, сначала переносит курсы и студентов, затем записи. Сохраняются
+все исходные ID, связи, даты, значения полей и статусы. Перенос выполняется
+через update_or_create() в transaction.atomic(): ошибка откатывает всю
+запись в целевую базу. Проверяются внешние ключи, даты и значения статуса.
+Отсутствующий источник не создаётся. Совпадение источника и целевой базы
+запрещено.
 
-```sql
-.tables
-.schema
-PRAGMA foreign_keys = ON;
-PRAGMA foreign_key_check;
-SELECT COUNT(*) FROM courses;
-SELECT COUNT(*) FROM students;
-SELECT COUNT(*) FROM enrollments;
-```
+Исходные количества: 3 курса, 3 студента, 5 записей (2 активные, 3 отменённые).
+Повторный импорт обновляет совпавшие ID, не создаёт дубликатов и не удаляет
+дополнительные записи целевой базы. Поэтому повторный перенос после
+ручного редактирования восстановит исходные значения совпадающих записей.
+JSON-файлы и база ПР7 не изменяются при работе веб-приложения.
 
-Все 16 запросов проверены в SQLite CLI с параметрами из комментариев
-к `sql/queries.sql`. Для параметризованного поиска по дате:
+Занятость current_students переносится без пересчёта: исходный журнал
+содержит только часть записей и не отражает всех занятых мест. Сохраняется
+правило ПР7: свободные места = max_students - current_students. Статистика
+журнала отдельно считает его реальные записи. Отменённые записи не входят
+в число активных и сами по себе не исключают курс из поиска доступных.
+При отмене через shell меняется статус, а импортированный счётчик мест
+не пересчитывается по неполному журналу.
 
-```sql
-.parameter init
-.parameter set ?1 "'2026-10-01'"
-.parameter set ?2 1
-SELECT id, name, start_date, max_students - current_students AS free_seats
-FROM courses
-WHERE start_date >= ?1
-  AND max_students - current_students >= ?2
-  AND current_students < max_students
-ORDER BY start_date, name, id;
-.exit
-```
+Проверка миграций:
 
-### Проверки проекта
-
-```powershell
+~~~powershell
+python manage.py showmigrations
+python manage.py makemigrations --check
+python manage.py sqlmigrate courses 0001
 python manage.py check
+~~~
+
+## Страницы и сценарии
+
+| URL | Назначение |
+|-----|------------|
+| / | Главная |
+| /courses/ | Курсы, поиск по названию/описанию и минимуму мест |
+| /courses/<id>/ | Карточка курса, 404 для отсутствующего объекта |
+| /courses/available/ | Свободные места и дата начала курса |
+| /students/ | Студенты, группа и поиск по ФИО |
+| /enrollments/ | Все записи, включая отменённые |
+| /enrollments/active/ | Только активные записи |
+| /enrollments/<id>/ | Карточка записи с курсом и студентом, либо 404 |
+| /enrollments/statistics/ | Показатели мест, записей, курсов, студентов и групп |
+
+Поиск доступных курсов означает: дата начала не раньше выбранной и есть
+нужное количество мест. Это адаптация задания к факультативам: расписания
+отдельных занятий в проекте нет. До ввода даты выводится форма; неверные
+даты и числа показываются как ошибки формы. Полные курсы исключаются.
+
+В обоих журналах доступны date, course, student, q и sort. Фильтры работают
+совместно (И); q ищет по названию курса или имени студента (ИЛИ).
+ModelChoiceField проверяет существование выбранного курса и студента.
+Неверный ввод даёт сообщение формы и пустой результат, без ошибки сервера.
+Разрешённые варианты sort находятся в enrollments/forms.py: date (новые
+сначала), date_asc, course, student. Неизвестный sort заменяется на date;
+произвольный ввод не передаётся в order_by(). ID служит вторым ключом
+сортировки для стабильного порядка.
+
+После фильтрации и сортировки применяется Paginator(..., 5).
+Навигация использует тег querystring и сохраняет поиск, фильтры и порядок.
+Некорректный page открывает первую страницу, выход за диапазон — последнюю.
+При пяти и менее записях навигация скрыта. Для демонстрации нескольких
+страниц добавьте тестовые записи в shell либо временно уменьшите размер
+страницы; исходные данные специально не размножались.
+
+Примеры:
+
+- /courses/?q=SQL&min_seats=5
+- /courses/available/?date=2026-10-01&min_seats=1
+- /students/?group=ЭФБО-02-24&q=Валерия
+- /enrollments/active/?date=2026-09-16&course=3&student=2&sort=course
+- /enrollments/statistics/?threshold=1
+
+## ORM-выражения ПР9
+
+Ниже перечислены различные применяемые выборки/операции, а не отдельные
+методы одной цепочки. Всего 18 сценариев запросов; CRUD и обратные связи
+дополнительно проверяются тестами и доступны через shell.
+
+| № | Выборка / операция | Где используется |
+|---|-------------------|------------------|
+| 1 | Курсы order_by(name, pk) | courses_list |
+| 2 | Поиск курса: Q(name__icontains) ИЛИ Q(description__icontains), минимум мест | courses_list |
+| 3 | Один курс по PK, get_object_or_404 | course_detail |
+| 4 | Дата + места, exclude полных курсов, сортировка по дате/названию | available_courses |
+| 5 | DISTINCT групп через values(group_name) | students_list, форма |
+| 6 | Все студенты objects.all() | students_list |
+| 7 | Студенты filter(group_name=...) | students_list |
+| 8 | Студенты filter(name__icontains=...) | students_list |
+| 9 | Все записи с F(), values(), order_by() | enrollments_list |
+| 10 | Активные записи exclude(is_cancelled=True) | active_enrollments |
+| 11 | Журнал с датой, курсом, студентом и поиском по связанным полям | оба журнала |
+| 12 | Одна запись: select_related(student, course), get_object_or_404 | enrollment_detail |
+| 13 | Общая вместимость, занятость, свободные места, среднее: aggregate Count/Sum/Avg | statistics |
+| 14 | Все/активные/отменённые записи: aggregate Count с filter | statistics |
+| 15 | Count записей по курсам, включая нули, annotate + values | statistics |
+| 16 | Count записей по студентам, включая нули | statistics |
+| 17 | Группировка студентов: values(group_name).annotate(Count) | statistics |
+| 18 | Курсы annotate(active=Count).filter(active__gt=threshold) | statistics, аналог HAVING |
+
+Соблюдены минимумы ТЗ: получение набора и одного объекта; четыре вида
+фильтрации (одно/несколько условий, связанное поле, exclude); два поиска
+(строковый и по нескольким полям); сортировка по одному и нескольким полям;
+выборка связанных полей и select_related; aggregate и annotate; пагинация.
+
+Карточка записи читает связанные объекты одним JOIN-запросом.
+Списки используют annotate(F(...)) и values(): шаблоны получают привычные
+ключи student_name/course_name без дополнительных запросов к каждой связи.
+В статистике учитываются объекты без записей; отменённые строки не входят
+в активные показатели, но видны в общем и отменённом количестве.
+
+Для демонстрации в браузере откройте боковую панель Django Debug Toolbar
+и раздел SQL. Она включена только при DEBUG=True для локальных IP,
+отключена при pytest и manage.py test. Видны JOIN, GROUP BY, HAVING
+и LIMIT запросов ORM; оформление страниц сохранено.
+
+## Структура проекта
+
+- elective_system/ — настройки, корневые URL.
+- homepage/ — главная, страница 404, стили, JavaScript, логотип.
+- courses/, students/, enrollments/ — модели ORM, миграции, представления,
+  формы параметров поиска и прежние шаблоны соответствующих сущностей.
+- templates/ — базовый шаблон и общая навигация.
+- db/inspect_source_db.py — инспекция исходной базы, только чтение.
+- db/import_sqlite_to_orm.py — перенос из ПР7 в ORM.
+- tests/ — тесты консоли, SQL-источника и ORM/веб-сценариев.
+- models/, storage.py, main.py — прежняя консольная версия с JSON.
+- db/database.py, db/import_json.py, db/queries.py, sql/ — сохранённый
+  SQL-слой ПР7 для изучения и проверки источника; веб-слой его не использует.
+- data/ — исходные JSON и база ПР7.
+
+Консоль ПР3 запускается командой python main.py и продолжает использовать
+JSON, независимо от базы веб-приложения. Команда python -m db.import_json
+относится к восстановлению источника ПР7 из JSON; для обычного запуска ПР9
+она не нужна и может восстановить старые значения совпадающих ID источника.
+
+## Проверки
+
+~~~powershell
+python manage.py check
+python manage.py makemigrations --check
+python manage.py showmigrations
 python -m pytest -v
 python -m flake8 . --extend-exclude=venv
-```
+~~~
 
-Тесты проверяют прежние классы, сохранность импортированных данных,
-внешние ключи, откат неуспешного импорта, повторный импорт без дубликатов,
-статистику, страницы и поиск, неверный ввод, SQL-инъекции, пустую базу
-и отображение изменения записи непосредственно из SQLite.
+Тесты используют отдельную базу Django и временный SQL-источник. Рабочие
+данные не изменяются. Проверяются перенос каждого поля и ID, повторный
+импорт, откат при ошибке, неизменность источника, CRUD, ограничения и
+обратные связи, 404, пустые результаты, поиск и неверный ввод, статистика,
+отсутствие N+1 в карточке, фильтрация, сортировка, пагинация и её ссылки.
+
+Ветка ПР9: pr9-orm. Коммиты текущего этапа начинаются с PR9:.
+Материалы Практикума «Отношения между таблицами» и «Django ORM. Модели»
+выполнены ранее в аккаунте.
+
+## Автор
+
+Иванова Валерия Денисовна, ЭФБО-02-24.

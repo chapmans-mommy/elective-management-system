@@ -1,10 +1,10 @@
-"""Пользовательские сценарии на данных SQLite и проверка ввода."""
-
-from contextlib import closing
+"""Пользовательские сценарии на данных Django ORM и проверка ввода."""
 
 import pytest
 
-from db.database import create_schema, get_connection
+from courses.models import Course
+from enrollments.models import Enrollment
+from students.models import Student
 
 
 @pytest.mark.parametrize("url", [
@@ -81,14 +81,8 @@ def test_statistics_filters_and_validation(client):
 
 
 def test_page_reads_database_changes(client):
-    with closing(get_connection()) as conn:
-        conn.execute("UPDATE courses SET name = ? WHERE id = ?", (
-            "Изменено непосредственно в SQLite", 1,
-        ))
-        conn.commit()
-    assert "Изменено непосредственно в SQLite" in client.get(
-        "/courses/",
-    ).content.decode()
+    Course.objects.filter(pk=1).update(name="Изменено через ORM")
+    assert "Изменено через ORM" in client.get("/courses/").content.decode()
 
 
 @pytest.mark.parametrize("url", [
@@ -98,10 +92,10 @@ def test_missing_objects_return_404(client, url):
     assert client.get(url).status_code == 404
 
 
-def test_empty_database_pages(client, tmp_path, monkeypatch):
-    monkeypatch.setattr("db.database.DB_PATH", tmp_path / "empty.sqlite")
-    with closing(get_connection()) as conn:
-        create_schema(conn)
+def test_empty_database_pages(client):
+    Enrollment.objects.all().delete()
+    Course.objects.all().delete()
+    Student.objects.all().delete()
     for url in ["/courses/", "/students/", "/enrollments/active/",
                 "/enrollments/statistics/"]:
         assert client.get(url).status_code == 200

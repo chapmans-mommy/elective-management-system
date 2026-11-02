@@ -10,3 +10,6 @@ venv/
 *.sqlite-journal
 *.sqlite-wal
 *.sqlite-shm
+
+# Локальные резервные копии ПР9
+data/*_backup.sqlite
